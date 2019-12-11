@@ -1,10 +1,16 @@
+#pragma once
+
 #include <array>
+#include <iostream>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <sys/resource.h>
 #include <unistd.h>
+
+#include "glyphs.h"
 
 #ifdef PINE64
 #include "gpio.h"
@@ -81,6 +87,10 @@ class Max7219Controller
     }
 
     void set(byte x, byte y) {
+        if (x < 0 || y < 0 || x >= width || y >= height) {
+            return;
+        }
+
         int l = x / 8;
         byte v = 1 << (7 - (x % 8));
         backBuffer[y * columns + l] |= v;
@@ -89,7 +99,10 @@ class Max7219Controller
     bool setup() {
 
 #ifdef PINE64
-        GPIO::setup();
+        if (GPIO::setup() != 0) {
+            return false;
+        }
+
         pinMode(dinPin, OUTPUT);
         pinMode(clkPin, OUTPUT);
         pinMode(csPin, OUTPUT);
@@ -106,7 +119,29 @@ class Max7219Controller
         return true;
     }
 
-    void draw() {
+    void drawGlyph(const int x, const int y, const char character) {
+        for (int r = 0; r < 6; r++) {
+            for (int c = 0; c < 4; c++) {
+                int g = console_font_4x6[character * 6 + r];
+                auto v = g >> (7 - c);
+                if ((v & 1)) {
+                    set(x + c, y + r);
+                }
+            }
+        }
+    }
+
+    void drawText(const int x, const int y, const std::string text) {
+
+        int i{0};
+        for (auto c : text) {
+            drawGlyph(x + 4 * i, y, c);
+
+            ++i;
+        }
+    }
+
+    void render() {
         for (int i = 0; i < height; i++) {
             digitalWrite(csPin, LOW);
 
