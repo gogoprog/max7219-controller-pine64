@@ -1,6 +1,8 @@
+all: simulator pine64
+
 simulator:
 	mkdir -p bin
-	g++ -fpermissive -Wall -o ./bin/test-simulator src/example/*.cpp -lSDL
+	g++ -fpermissive -Wall -o ./bin/test-simulator src/example/*.cpp -lSDL2 -I./deps/Pine64-CPP/ -DSIMULATOR
 
 pine64:
 	mkdir -p bin
