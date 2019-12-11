@@ -2,6 +2,7 @@
 
 #include <array>
 #include <iostream>
+#include <map>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,7 +11,7 @@
 #include <sys/resource.h>
 #include <unistd.h>
 
-#include "glyphs.h"
+#include "fonts.h"
 
 #ifdef PINE64
 #include "gpio.h"
@@ -20,6 +21,8 @@
 #endif
 
 using byte = uint8_t;
+
+enum class Font { font4x6, font5x8 };
 
 template <int columns, int rows>
 class Max7219Controller
@@ -31,13 +34,12 @@ class Max7219Controller
     int dinPin;
     int csPin;
     int clkPin;
-
-  public:
-    byte shadow[8];
+    std::map<Font, FontData> fontDataMap;
     std::array<byte, 8 * columns> backBuffer;
     int width{columns * 8};
     int height{rows * 8};
 
+  public:
     Max7219Controller(const int din, const int cs, const int clk)
 #ifdef PINE64
         : GPIO()
@@ -63,10 +65,7 @@ class Max7219Controller
         }
     }
 
-    void regSetMax7219(byte reg, byte value) {
-        if ((reg >= 1) && (reg <= 8)) {
-            shadow[reg - 1] = value;
-        }
+    void setReg(byte reg, byte value) {
         digitalWrite(csPin, LOW);
         write(reg);
         write(value);
@@ -82,8 +81,8 @@ class Max7219Controller
         std::fill(backBuffer.begin(), backBuffer.end(), 0);
     }
 
-    void brightness(byte br) {
-        regSetMax7219(0x0a, br);
+    void brightness(byte value) {
+        setReg(0x0a, value);
     }
 
     void set(byte x, byte y) {
@@ -106,23 +105,26 @@ class Max7219Controller
         pinMode(dinPin, OUTPUT);
         pinMode(clkPin, OUTPUT);
         pinMode(csPin, OUTPUT);
-        regSetMax7219(0x0b, 0x07); // Scan Limit
-        regSetMax7219(0x09, 0x00); // Decode Mode
-        regSetMax7219(0x0c, 0x01); // Shut Down Mode (On)
-        regSetMax7219(0x0f, 0x00); // Display Test (Off)
+        setReg(0x0b, 0x07); // Scan Limit
+        setReg(0x09, 0x00); // Decode Mode
+        setReg(0x0c, 0x01); // Shut Down Mode (On)
+        setReg(0x0f, 0x00); // Display Test (Off)
         brightness(0);             // Brightness (0 - 15)
         for (int i = 1; i < 9; i++) {
-            regSetMax7219(i, 0);
+            setReg(i, 0);
         }
-
 #endif
+
+        fontDataMap[Font::font5x8] = FontData{5, 8, font_5x8};
+
         return true;
     }
 
-    void drawGlyph(const int x, const int y, const char character) {
-        for (int r = 0; r < 6; r++) {
-            for (int c = 0; c < 4; c++) {
-                int g = console_font_4x6[character * 6 + r];
+    void drawGlyph(const int x, const int y, const char character, const Font font) {
+        const auto &fontData = fontDataMap.at(font);
+        for (int r = 0; r < fontData.charHeight; r++) {
+            for (int c = 0; c < fontData.charWidth; c++) {
+                int g = fontData.data[character * fontData.charHeight + r];
                 auto v = g >> (7 - c);
                 if ((v & 1)) {
                     set(x + c, y + r);
@@ -131,11 +133,11 @@ class Max7219Controller
         }
     }
 
-    void drawText(const int x, const int y, const std::string text) {
-
+    void drawText(const int x, const int y, const std::string text, const Font font) {
+        const auto &fontData = fontDataMap.at(font);
         int i{0};
         for (auto c : text) {
-            drawGlyph(x + 4 * i, y, c);
+            drawGlyph(x + fontData.charWidth * i, y, c, font);
 
             ++i;
         }

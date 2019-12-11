@@ -16,12 +16,12 @@ int main(void) {
 
         controller->set(x, 1);
 
-        controller->drawText(x, 2, "Gogoprog!");
+        controller->drawText(x, 0, "... MAX7219 Controller for the Pine64", Font::font5x8);
         x--;
 
         controller->render();
 
-        controller->delay(500);
+        controller->delay(100);
     }
 
     return 0;
