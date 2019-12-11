@@ -1,0 +1,3 @@
+[submodule "deps/Pine64-CPP"]
+	path = deps/Pine64-CPP
+	url = https://github.com/databit/Pine64-CPP
