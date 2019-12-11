@@ -20,12 +20,14 @@
 #include "spi.h"
 #endif
 
+namespace max7219 {
+
 using byte = uint8_t;
 
 enum class Font { font4x6, font5x8 };
 
 template <int columns, int rows>
-class Max7219Controller
+class Controller
 #ifdef PINE64
     : public Pine64::GPIO
 #endif
@@ -40,7 +42,7 @@ class Max7219Controller
     int height{rows * 8};
 
   public:
-    Max7219Controller(const int din, const int cs, const int clk)
+    Controller(const int din, const int cs, const int clk)
 #ifdef PINE64
         : GPIO()
 #endif
@@ -109,7 +111,7 @@ class Max7219Controller
         setReg(0x09, 0x00); // Decode Mode
         setReg(0x0c, 0x01); // Shut Down Mode (On)
         setReg(0x0f, 0x00); // Display Test (Off)
-        brightness(0);             // Brightness (0 - 15)
+        brightness(0);      // Brightness (0 - 15)
         for (int i = 1; i < 9; i++) {
             setReg(i, 0);
         }
@@ -154,3 +156,4 @@ class Max7219Controller
         }
     }
 };
+} // namespace max7219

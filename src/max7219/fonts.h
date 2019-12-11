@@ -1,5 +1,7 @@
 #pragma once
 
+namespace max7219 {
+
 struct FontData {
     int charWidth;
     int charHeight;
@@ -5643,3 +5645,4 @@ static const unsigned char font_5x8[] = {
     0x00, /* 00000 */
     0x00, /* 00000 */
 };
+} // namespace max7219
