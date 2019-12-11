@@ -1,12 +1,22 @@
 # max7912-controller-pine64
 
+## Features
+
+ * World space pixel positions
+ * Draw text using predefined fonts
+ * Draw lines
+ * Draw rectangles
+ * Simulator using SDL2
+
 ## Demo
 
 ![Image](https://gogoprog.github.io/max7912-controller-pine64/video.gif)
 
+![Image](https://gogoprog.github.io/max7912-controller-pine64/video2.gif)
+
 ## Example
 
-See src/main.cpp :
+See `src/example/main.cpp` :
 
 ```cpp
     auto *controller = new Max7219Controller<4, 1>(
