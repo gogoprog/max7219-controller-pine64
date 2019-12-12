@@ -10,9 +10,9 @@
 
 ## Demo
 
-![Image](https://gogoprog.github.io/max7912-controller-pine64/video.gif)
+![Image](https://gogoprog.github.io/max7219-controller-pine64/video.gif)
 
-![Image](https://gogoprog.github.io/max7912-controller-pine64/video2.gif)
+![Image](https://gogoprog.github.io/max7219-controller-pine64/video2.gif)
 
 ## Example
 
