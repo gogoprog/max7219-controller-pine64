@@ -1,4 +1,4 @@
-# max7912-controller-pine64
+# max7219-controller-pine64
 
 ## Features
 
