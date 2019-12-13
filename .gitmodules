@@ -1,3 +1,6 @@
 [submodule "deps/Pine64-CPP"]
 	path = deps/Pine64-CPP
 	url = https://github.com/databit/Pine64-CPP
+[submodule "deps/LuaBinder"]
+	path = deps/LuaBinder
+	url = https://github.com/rflab/LuaBinder.git
