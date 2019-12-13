@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main(void) {
-    auto *controller = new max7219::Controller<4, 1>(Pine64::PI_GPIO_14, Pine64::PI_GPIO_15, Pine64::PI_GPIO_18);
+    auto *controller = new max7219::Controller(4, 1, Pine64::PI_GPIO_14, Pine64::PI_GPIO_15, Pine64::PI_GPIO_18);
 
     if(!controller->setup()) {
         return 1;

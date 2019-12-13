@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <iostream>
 #include <map>
 #include <stdint.h>
@@ -10,6 +9,7 @@
 #include <string>
 #include <sys/resource.h>
 #include <unistd.h>
+#include <vector>
 
 #include "fonts.h"
 
@@ -32,7 +32,6 @@ using byte = uint8_t;
 
 enum class Font { font4x6, font5x8 };
 
-template <int columns, int rows>
 class Controller
 #ifdef PINE64
     : public Pine64::GPIO
@@ -40,11 +39,13 @@ class Controller
 {
 
   public:
-    Controller(const int din, const int cs, const int clk)
+    Controller(const int cols, const int rows, const int din, const int cs, const int clk)
 #ifdef PINE64
         : GPIO()
 #endif
     {
+        this->columns = cols;
+        this->rows = rows;
         dinPin = din;
         csPin = cs;
         clkPin = clk;
@@ -61,6 +62,9 @@ class Controller
     }
 
     bool setup() {
+        width = columns * 8;
+        height = rows * 8;
+        backBuffer.resize(8 * rows * columns);
 
 #ifdef PINE64
         if (GPIO::setup() != 0) {
@@ -185,6 +189,9 @@ class Controller
         SDL_Event e;
 
         while (SDL_PollEvent(&e) != 0) {
+            if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE) {
+                exit(0);
+            }
             if (e.type == SDL_QUIT) {
                 exit(0);
             }
@@ -229,13 +236,15 @@ class Controller
     }
 #endif
 
+    int rows{0};
+    int columns{0};
     int dinPin{-1};
     int csPin{-1};
     int clkPin{-1};
     std::map<Font, FontData> fontDataMap;
-    std::array<byte, 8 * columns> backBuffer;
-    int width{columns * 8};
-    int height{rows * 8};
+    std::vector<byte> backBuffer;
+    int width{0};
+    int height{0};
 
 #ifdef SIMULATOR
     SDL_Renderer *renderer;
